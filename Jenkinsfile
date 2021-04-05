@@ -1,50 +1,89 @@
-node {
-    def registry1 = 'awsdev123/capstone-blue'
-    def registry2 = 'awsdev123/capstone-green'
-    stage('Checking out git repo') {
-      echo 'Checkout...'
-      checkout scm
-    }
-    stage('Checking environment') {
-      echo 'Checking environment...'
-      sh 'git --version'
-      echo "Branch: ${env.BRANCH_NAME}"
-      sh 'docker -v'
-    }
-    stage("Linting") {
-      echo 'Linting...'
-      sh '/usr/bin/hlint blue/Dockerfile'
-      sh '/usr/bin/hlint green/Dockerfile'
-    }
-    stage('Building image blue') {
-	    echo 'Building Docker image blue...'
-      withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'Fan650728', usernameVariable: 'dockerHubUser')]) {
-	     	sh "sudo docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-	     	sh "sudo docker build -t ${registry1} blue/."
-	     	sh "sudo docker tag ${registry1} ${registry1}"
-	     	sh "sudo docker push ${registry1}"
+pipeline {
+  agent any
+  stages {
+
+    stage('Lint HTML') {
+      steps {
+        sh 'tidy -q -e *.html'
       }
     }
-    stage('Building image green') {
-	    echo 'Building Docker image green...'
-      withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'Fan650728', usernameVariable: 'dockerHubUser')]) {
-	     	sh "sudo docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-	     	sh "sudo docker build -t ${registry2} green/."
-	     	sh "sudo docker tag ${registry2} ${registry2}"
-	     	sh "sudo docker push ${registry2}"
-      }
-    }
-    stage('Deploying to AWS EKS') {
-      echo 'Deploying to AWS EKS...'
-      dir ('./') {
-        withAWS(credentials: 'aws.bnair', region: 'us-west-2') {
-            sh "aws eks --region us-west-2 update-kubeconfig --name jenkinsproj5"
-            sh "kubectl apply -f blue/blue-controller.json"
-            sh "kubectl apply -f green/green-controller.json"
-            sh "kubectl apply -f ./blue-green-service.json"
-            sh "kubectl get nodes"
-            sh "kubectl get pods"
+    
+    stage('Build Docker Image') {
+      steps {
+        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD']]){
+          sh '''
+            docker build -t mawsdev123/capstone .
+          '''
         }
       }
     }
+
+    stage('Push Image To Dockerhub') {
+      steps {
+        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD']]){
+          sh '''
+            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+            docker push mawsdev123/capstone
+          '''
+        }
+      }
+    }
+
+    stage('Set current kubectl context') {
+      steps {
+        withAWS(region:'us-west-2', credentials:'ecr_credentials') {
+          sh '''
+            kubectl config use-context arn:aws:eks:us-west-2:142977788479:cluster/capstonecluster
+          '''
+        }
+      }
+    }
+
+    stage('Deploy blue container') {
+      steps {
+        withAWS(region:'us-west-2', credentials:'ecr_credentials') {
+          sh '''
+            kubectl apply -f ./blue/blue-controller.json
+          '''
+        }
+      }
+    }
+
+    stage('Deploy green container') {
+      steps {
+        withAWS(region:'us-west-2', credentials:'ecr_credentials') {
+          sh '''
+            kubectl apply -f ./green/green-controller.json
+          '''
+        }
+      }
+    }
+
+    stage('Create the service in the cluster, redirect to blue') {
+      steps {
+        withAWS(region:'us-west-2', credentials:'proj5') {
+          sh '''
+            kubectl apply -f ./blue-service.json
+          '''
+        }
+      }
+    }
+
+    stage('Wait user approve') {
+            steps {
+                input "Ready to redirect traffic to green?"
+            }
+        }
+
+    stage('Create the service in the cluster, redirect to green') {
+      steps {
+        withAWS(region:'us-west-2', credentials:'proj5') {
+          sh '''
+            kubectl apply -f ./green-service.json
+          '''
+        }
+      }
+    }
+
+  }
 }
