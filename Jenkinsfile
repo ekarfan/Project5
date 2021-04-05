@@ -29,11 +29,11 @@ pipeline {
       }
     }
 
-    stage('Set current kubectl context') {
+    stage('Set kubectl context') {
       steps {
         withAWS(region:'us-west-2', credentials:'proj5') {
           sh '''
-            kubectl config use-context arn:aws eks — region us-west-2 kubeconfig — name jenkinsproj5
+            kubectl config use-context arn:aws eks:us-west-2:kubeconfig:cluster/jenkinsproj5
           '''
         }
       }
