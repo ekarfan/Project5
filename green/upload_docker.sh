@@ -6,13 +6,13 @@
 # Step 1:
 # Create dockerpath
 # dockerpath=<your docker ID/path>
-dockerpath=bnair75/testgreenimage
+dockerpath=awsdev123/testgreenimage
 
 # Step 2:  
 # Authenticate & tag
 echo "Docker ID and Image: $dockerpath"
-docker login --username bnair75
-docker tag testgreenimage bnair75/testgreenimage
+docker login --username awsdev123
+docker tag testgreenimage awsdev123/testgreenimage
 # Step 3:
 # Push image to a docker repository
-docker push bnair75/testgreenimage
+docker push awsdev123/testgreenimage

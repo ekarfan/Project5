@@ -4,7 +4,7 @@
 
 # Step 1:
 # Build image and add a descriptive tag
-docker build --tag=bnair75/testgreenimage .
+docker build --tag=awsdev123/testgreenimage .
 
 # Step 2: 
 # List docker images
@@ -12,4 +12,4 @@ docker image ls
 
 # Step 3: 
 # Run flask app
-docker run -d -p 8000:80 bnair75/testgreenimage
+docker run -d -p 8000:80 awsdev123/testgreenimage

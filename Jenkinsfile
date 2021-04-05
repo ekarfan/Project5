@@ -1,6 +1,6 @@
 node {
-    def registry1 = 'bnair75/capstone-blue'
-    def registry2 = 'bnair75/capstone-green'
+    def registry1 = 'awsdev123/capstone-blue'
+    def registry2 = 'awsdev123/capstone-green'
     stage('Checking out git repo') {
       echo 'Checkout...'
       checkout scm
@@ -37,8 +37,8 @@ node {
     stage('Deploying to AWS EKS') {
       echo 'Deploying to AWS EKS...'
       dir ('./') {
-        withAWS(credentials: 'aws.bnair', region: 'us-east-2') {
-            sh "aws eks --region us-east-2 update-kubeconfig --name bn-prod"
+        withAWS(credentials: 'aws.bnair', region: 'us-west-2') {
+            sh "aws eks --region us-west-2 update-kubeconfig --name jenkinsproj5"
             sh "kubectl apply -f blue/blue-controller.json"
             sh "kubectl apply -f green/green-controller.json"
             sh "kubectl apply -f ./blue-green-service.json"
