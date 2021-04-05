@@ -12,7 +12,7 @@ pipeline {
       steps {
         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD']]){
           sh '''
-            docker build -t mawsdev123/capstone .
+            docker build -t awsdev123/capstone .
           '''
         }
       }
@@ -23,7 +23,7 @@ pipeline {
         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD']]){
           sh '''
             docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-            docker push mawsdev123/capstone
+            docker push awsdev123/capstone
           '''
         }
       }
@@ -31,9 +31,9 @@ pipeline {
 
     stage('Set current kubectl context') {
       steps {
-        withAWS(region:'us-west-2', credentials:'ecr_credentials') {
+        withAWS(region:'us-west-2', credentials:'proj5') {
           sh '''
-            kubectl config use-context arn:aws:eks:us-west-2:142977788479:cluster/capstonecluster
+            kubectl config use-context arn:aws eks — region us-west-2 update-kubeconfig — name jenkinsproj5
           '''
         }
       }
@@ -41,7 +41,7 @@ pipeline {
 
     stage('Deploy blue container') {
       steps {
-        withAWS(region:'us-west-2', credentials:'ecr_credentials') {
+        withAWS(region:'us-west-2', credentials:'proj5') {
           sh '''
             kubectl apply -f ./blue/blue-controller.json
           '''
@@ -51,7 +51,7 @@ pipeline {
 
     stage('Deploy green container') {
       steps {
-        withAWS(region:'us-west-2', credentials:'ecr_credentials') {
+        withAWS(region:'us-west-2', credentials:'proj5') {
           sh '''
             kubectl apply -f ./green/green-controller.json
           '''
@@ -63,7 +63,7 @@ pipeline {
       steps {
         withAWS(region:'us-west-2', credentials:'proj5') {
           sh '''
-            kubectl apply -f ./blue-service.json
+            kubectl apply -f ./blue/blue-service.json
           '''
         }
       }
@@ -79,7 +79,7 @@ pipeline {
       steps {
         withAWS(region:'us-west-2', credentials:'proj5') {
           sh '''
-            kubectl apply -f ./green-service.json
+            kubectl apply -f ./green/green-service.json
           '''
         }
       }
