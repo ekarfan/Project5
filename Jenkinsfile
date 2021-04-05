@@ -10,7 +10,7 @@ pipeline {
     
     stage('Build Docker Image') {
       steps {
-        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD']]){
+        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD']]){
           sh '''
             docker build -t awsdev123/capstone .
           '''
@@ -20,7 +20,7 @@ pipeline {
 
     stage('Push Image To Dockerhub') {
       steps {
-        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD']]){
+        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD']]){
           sh '''
             docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
             docker push awsdev123/capstone
