@@ -33,7 +33,7 @@ pipeline {
       steps {
         withAWS(region:'us-west-2', credentials:'proj5') {
           sh '''
-            kubectl config use-context arn:aws eks:us-west-2:kubeconfig:cluster/jenkinsproj5
+            kubectl config use-context arn:aws:eks:us-west-2:142977788479:cluster/jenkinsproj5
           '''
         }
       }
@@ -69,7 +69,7 @@ pipeline {
       }
     }
 
-    stage('Wait user approve') {
+    stage('Wait user approval') {
             steps {
                 input "Ready to redirect traffic to green?"
             }

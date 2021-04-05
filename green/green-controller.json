@@ -22,7 +22,7 @@
             "containers":[
                {
                   "name":"green",
-                  "image":"awsdev123/capstone-green",
+                  "image":"awsdev123/capstone",
                   "ports":[
                      {
                         "name":"http-server",

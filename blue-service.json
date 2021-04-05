@@ -2,9 +2,9 @@
    "kind":"Service",
    "apiVersion":"v1",
    "metadata":{
-      "name":"bluelb",
+      "name":"bluegreenlb",
       "labels":{
-         "app":"bluelb"
+         "app":"bluegreenlb"
       }
    },
    "spec":{
