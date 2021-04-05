@@ -33,6 +33,7 @@ pipeline {
       steps {
         withAWS(region:'us-west-2', credentials:'proj5') {
           sh '''
+            aws eks --region us-west-2 update-kubeconfig --name cluster-capstone
             kubectl config use-context arn:aws:eks:us-west-2:046731119214:cluster/jenkinsproj5
           '''
         }
